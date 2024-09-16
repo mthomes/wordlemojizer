@@ -2,7 +2,6 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -12,8 +11,502 @@
     />
     <title>WordleMojizer</title>
   </head>
+
+  <style>
+    :root {
+      --absent-color: #787c7e;
+      --accent-color: #d3d6da;
+      --animation-duration: 500ms;
+      --bg-color: #fff;
+      --button-color: #d3d6da;
+      --correct-color: #6aaa64;
+      --font-heading: 'Arvo', serif;
+      --icon-padding: 8px;
+      --icon-size: 24px;
+      --present-color: #c9b458;
+      --text-color: #050505;
+      --tile-size: 56px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --absent-color: #3a3a3c;
+        --accent-color: #3a3a3c;
+        --bg-color: #121213;
+        --button-color: #818384;
+        --correct-color: #538d4e;
+        --present-color: #b59f3b;
+        --text-color: #d9d9d9;
+      }
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }
+
+    h1 {
+      font-family: var(--font-heading);
+      font-size: 2rem;
+      margin-block: 32px;
+      text-align: center;
+      text-transform: uppercase;
+
+      > *:nth-child(1) {
+        color: var(--text-color);
+      }
+
+      > *:nth-child(2) {
+        color: var(--present-color);
+      }
+
+      > *:nth-child(3) {
+        color: var(--correct-color);
+      }
+    }
+
+    button {
+      appearance: none;
+      background: none;
+      border: 0;
+      color: inherit;
+      font: inherit;
+      line-height: 0;
+      padding: 0;
+    }
+
+    footer {
+      position: fixed;
+      bottom: 16px;
+      left: 16px;
+      right: 16px;
+    }
+
+    form {
+      display: grid;
+      gap: 5px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-inline: auto;
+      max-width: max-content;
+    }
+
+    input {
+      background: var(--replacer-input-color);
+      border: 2px solid var(--replacer-input-color, var(--accent-color));
+      font-size: var(--tile-size);
+      height: var(--tile-size);
+      padding: 0;
+      width: var(--tile-size);
+
+      &:-internal-autofill-selected {
+        background: transparent !important;
+      }
+    }
+
+    .board {
+      position: relative;
+      max-width: max-content;
+      margin: 50px auto 0;
+    }
+
+    .board-display {
+      perspective: 800px;
+      transform-style: preserve-3d;
+    }
+
+    .board-actionButton {
+      --_x-padding: var(--icon-padding);
+      --_y-padding: calc(var(--icon-padding) * 2);
+      --_btn-height: calc(var(--icon-size) + var(--_y-padding) * 2);
+      --_btn-width: calc(var(--icon-size) + var(--_x-padding) * 2);
+
+      position: absolute;
+      background-color: var(--button-color);
+      padding: calc(var(--icon-padding) * 2) var(--icon-padding);
+      border-radius: 4px;
+      color: var(--text-color);
+      z-index: 1;
+
+      svg {
+        height: var(--icon-size);
+        width: var(--icon-size);
+      }
+    }
+
+    .board-actionButton_paste {
+      top: calc((var(--_btn-height) / 2) * -1);
+      left: calc((var(--_btn-width) / 2) * -1);
+    }
+
+    .board-actionButton_copy {
+      bottom: calc((var(--_btn-height) / 2) * -1);
+      right: calc((var(--_btn-width) / 2) * -1);
+    }
+
+    .tilesRow {
+      display: grid;
+      max-width: max-content;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 5px;
+
+      + .tilesRow {
+        margin-top: 5px;
+      }
+    }
+
+    .tile {
+      align-items: center;
+      background-color: var(--replacer-input-color);
+      border: 2px solid var(--replacer-input-color, var(--accent-color));
+      display: flex;
+      font-size: var(--tile-size);
+      height: var(--tile-size);
+      justify-content: center;
+      line-height: var(--tile-size);
+      padding: 0;
+      width: var(--tile-size);
+      transition: transform var(--animation-duration) linear;
+      transform: rotateX(-180deg);
+      transition-delay: var(--delay);
+
+      > span {
+        background-position: 2px 2px;
+        background-repeat: no-repeat;
+        background-size: var(--tile-size) var(--tile-size);
+        display: block;
+        height: var(--tile-size);
+        opacity: 0;
+        transition: opacity 0s linear;
+        transition-delay: calc(
+          var(--delay) + calc(var(--animation-duration) / 2)
+        );
+        width: var(--tile-size);
+      }
+    }
+
+    .tile_absent,
+    input[name='absent'] {
+      --replacer-input-color: var(--absent-color);
+    }
+
+    .tile_present,
+    input[name='present'] {
+      --replacer-input-color: var(--present-color);
+    }
+
+    .tile_correct,
+    input[name='correct'] {
+      --replacer-input-color: var(--correct-color);
+    }
+
+    .tile_show {
+      transform: rotateX(0deg);
+
+      > span {
+        opacity: 1;
+        transition: opacity 0s linear;
+        transition-delay: calc(
+          var(--delay) + calc(var(--animation-duration) / 2)
+        );
+      }
+    }
+  </style>
+
   <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
+    <header>
+      <h1><span>WORDL</span><span>E</span><span>MOJIZER</span></h1>
+    </header>
+    <main>
+      <section class="board">
+        <button class="board-actionButton board-actionButton_paste">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-clipboard"
+          >
+            <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
+            <path
+              d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"
+            />
+          </svg>
+        </button>
+        <div class="board-display">
+          <div class="tilesRow">
+            <div class="tile" style="--delay: 0ms"><span></span></div>
+            <div class="tile" style="--delay: 100ms"><span></span></div>
+            <div class="tile" style="--delay: 200ms"><span></span></div>
+            <div class="tile" style="--delay: 300ms"><span></span></div>
+            <div class="tile" style="--delay: 400ms"><span></span></div>
+          </div>
+          <div class="tilesRow">
+            <div class="tile" style="--delay: 0ms"><span></span></div>
+            <div class="tile" style="--delay: 100ms"><span></span></div>
+            <div class="tile" style="--delay: 200ms"><span></span></div>
+            <div class="tile" style="--delay: 300ms"><span></span></div>
+            <div class="tile" style="--delay: 400ms"><span></span></div>
+          </div>
+          <div class="tilesRow">
+            <div class="tile" style="--delay: 0ms"><span></span></div>
+            <div class="tile" style="--delay: 100ms"><span></span></div>
+            <div class="tile" style="--delay: 200ms"><span></span></div>
+            <div class="tile" style="--delay: 300ms"><span></span></div>
+            <div class="tile" style="--delay: 400ms"><span></span></div>
+          </div>
+          <div class="tilesRow">
+            <div class="tile" style="--delay: 0ms"><span></span></div>
+            <div class="tile" style="--delay: 100ms"><span></span></div>
+            <div class="tile" style="--delay: 200ms"><span></span></div>
+            <div class="tile" style="--delay: 300ms"><span></span></div>
+            <div class="tile" style="--delay: 400ms"><span></span></div>
+          </div>
+          <div class="tilesRow">
+            <div class="tile" style="--delay: 0ms"><span></span></div>
+            <div class="tile" style="--delay: 100ms"><span></span></div>
+            <div class="tile" style="--delay: 200ms"><span></span></div>
+            <div class="tile" style="--delay: 300ms"><span></span></div>
+            <div class="tile" style="--delay: 400ms"><span></span></div>
+          </div>
+          <div class="tilesRow">
+            <div class="tile" style="--delay: 0ms"><span></span></div>
+            <div class="tile" style="--delay: 100ms"><span></span></div>
+            <div class="tile" style="--delay: 200ms"><span></span></div>
+            <div class="tile" style="--delay: 300ms"><span></span></div>
+            <div class="tile" style="--delay: 400ms"><span></span></div>
+          </div>
+        </div>
+        <button class="board-actionButton board-actionButton_copy">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-copy"
+          >
+            <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+          </svg>
+        </button>
+      </section>
+    </main>
+    <footer>
+      <form autocomplete="off">
+        <input type="text" name="absent" required />
+        <input type="text" name="present" required />
+        <input type="text" name="correct" required />
+      </form>
+    </footer>
+
+    <script>
+      const emojis = [
+        '😊',
+        '👍',
+        '❤️',
+        '😂',
+        '🎉',
+        '🌟',
+        '😎',
+        '🐶',
+        '🍕',
+        '🚀',
+        '🌈',
+        '🏆',
+        '🎵',
+        '✨',
+        '☕',
+        '🏅',
+        '📚',
+        '🔥',
+        '😍',
+        '💡',
+      ];
+      const EMOJI_REGEX = /[⬜⬛🟨🟩]/g;
+      const ABSENT_REGEX = /[⬜⬛]/g;
+      const PRESENT_REGEX = /[🟨]/g;
+      const CORRECT_REGEX = /[🟩]/g;
+      const tilesRows = document.querySelectorAll('.tilesRow');
+      const buttonPaste = document.querySelector('.board-actionButton_paste');
+      const buttonCopy = document.querySelector('.board-actionButton_copy');
+      const absentInput = document.querySelector('input[name="absent"]');
+      const presentInput = document.querySelector('input[name="present"]');
+      const correctInput = document.querySelector('input[name="correct"]');
+      const replacementEmoji = {
+        absent: '',
+        present: '',
+        correct: '',
+      };
+
+      let clipboardData = '';
+
+      buttonPaste.addEventListener('click', handleOnPaste);
+      buttonCopy.addEventListener('click', handleOnClickCopy);
+
+      function setBoard(data) {
+        const pointLines = data
+          .trim()
+          .split('\n')
+          .filter((line) => EMOJI_REGEX.test(line));
+        const rows = [];
+
+        tilesRows.forEach((row, rowIndex) => {
+          const tiles = row.querySelectorAll('.tile');
+
+          tiles.forEach((tile, tileIndex) => {
+            if (!pointLines[rowIndex]) return;
+
+            const classSufix = getClassSufix(
+              [...pointLines[rowIndex]][tileIndex]
+            );
+
+            tile.classList.add(`tile_${classSufix}`);
+          });
+        });
+      }
+
+      function getClassSufix(emoji) {
+        switch (emoji) {
+          case '⬜':
+          case '⬛':
+            return 'absent';
+          case '🟨':
+            return 'present';
+          case '🟩':
+            return 'correct';
+          default:
+            return '';
+        }
+      }
+
+      async function handleOnPaste() {
+        try {
+          const text = await navigator.clipboard.readText();
+
+          clipboardData = text;
+          setBoard(text);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      async function handleOnClickCopy() {
+        try {
+          let scoreOutput = `${clipboardData}`;
+
+          scoreOutput = scoreOutput.replaceAll(
+            '⬜',
+            replacementEmoji.absent || '⬜'
+          );
+          scoreOutput = scoreOutput.replaceAll(
+            '⬛',
+            replacementEmoji.absent || '⬛'
+          );
+          scoreOutput = scoreOutput.replaceAll(
+            '🟨',
+            replacementEmoji.present || '🟨'
+          );
+          scoreOutput = scoreOutput.replaceAll(
+            '🟩',
+            replacementEmoji.correct || '🟩'
+          );
+
+          await navigator.clipboard.writeText(scoreOutput);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      function handleOnChangeInput(event, sufix) {
+        const {value} = event.target;
+
+        replacementEmoji[sufix] = value;
+
+        tilesRows.forEach((row) => {
+          const tiles = row.querySelectorAll(`.tile_${sufix}`);
+
+          tiles.forEach((tile) => {
+            const span = tile.querySelector('span');
+
+            console.log(span, value);
+
+            if (value) {
+              span.style.backgroundImage = svgBkg(value);
+            }
+
+            if (value) {
+              tile.classList.add('tile_show');
+            } else {
+              tile.classList.remove('tile_show');
+            }
+          });
+        });
+      }
+
+      absentInput.addEventListener('input', (event) => {
+        handleOnChangeInput(event, 'absent');
+      });
+
+      presentInput.addEventListener('input', (event) => {
+        handleOnChangeInput(event, 'present');
+      });
+
+      correctInput.addEventListener('input', (event) => {
+        handleOnChangeInput(event, 'correct');
+      });
+
+      // Function to set the favicon
+      function setFavicon(emoji) {
+        // Create a canvas element
+        const canvas = document.createElement('canvas');
+        canvas.width = 64;
+        canvas.height = 64;
+
+        const ctx = canvas.getContext('2d');
+        ctx.font = '50px serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(emoji, canvas.width / 2, canvas.height / 2);
+
+        // Convert the canvas to a data URL
+        const faviconURL = canvas.toDataURL('image/png');
+
+        // Set the favicon link element
+        let link = document.querySelector("link[rel~='icon']");
+        if (!link) {
+          link = document.createElement('link');
+          link.rel = 'icon';
+          document.getElementsByTagName('head')[0].appendChild(link);
+        }
+        link.href = faviconURL;
+      }
+
+      // Function to select a random emoji from the array
+      function getRandomEmoji() {
+        const randomIndex = Math.floor(Math.random() * emojis.length);
+        return emojis[randomIndex];
+      }
+
+      // Set the initial random favicon
+      setFavicon(getRandomEmoji());
+
+      // Update the favicon every 30 seconds
+      setInterval(() => {
+        setFavicon(getRandomEmoji());
+      }, 10000);
+
+      function svgBkg(value) {
+        return `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">${value}</text></svg>')`;
+      }
+    </script>
   </body>
 </html>
