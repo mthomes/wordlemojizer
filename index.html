@@ -169,7 +169,7 @@
       line-height: var(--tile-size);
       padding: 0;
       width: var(--tile-size);
-      transition: transform var(--animation-duration) linear;
+      transition: transform var(--animation-duration) cubic-bezier(0.65, 0, 0.35, 1);
       transform: rotateX(-180deg);
       transition-delay: var(--delay);
 
@@ -219,8 +219,8 @@
     .board-display_copied .tile_present,
     .board-display_copied .tile_correct {
       animation-name: copied;
-      animation-duration: calc(var(--animation-duration) * 0.75);
-      animation-timing-function: linear;
+      animation-duration: calc(var(--animation-duration) / 2);
+      animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
       animation-delay: calc(var(--rowDelay) + var(--delay));
     }
 
