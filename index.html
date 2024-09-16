@@ -131,6 +131,10 @@
         height: var(--icon-size);
         width: var(--icon-size);
       }
+
+      &:active {
+        transform: translateY(3px);
+      }
     }
 
     .board-actionButton_paste {
@@ -210,6 +214,27 @@
         );
       }
     }
+
+    .board-display_copied .tile_absent,
+    .board-display_copied .tile_present,
+    .board-display_copied .tile_correct {
+      animation-name: copied;
+      animation-duration: calc(var(--animation-duration) * 0.75);
+      animation-timing-function: linear;
+      animation-delay: calc(var(--rowDelay) + var(--delay));
+    }
+
+    @keyframes copied {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(0.8);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
   </style>
 
   <body>
@@ -238,42 +263,42 @@
           </svg>
         </button>
         <div class="board-display">
-          <div class="tilesRow">
+          <div class="tilesRow" style="--rowDelay: 200ms">
             <div class="tile" style="--delay: 0ms"><span></span></div>
             <div class="tile" style="--delay: 100ms"><span></span></div>
             <div class="tile" style="--delay: 200ms"><span></span></div>
             <div class="tile" style="--delay: 300ms"><span></span></div>
             <div class="tile" style="--delay: 400ms"><span></span></div>
           </div>
-          <div class="tilesRow">
+          <div class="tilesRow" style="--rowDelay: 400ms">
             <div class="tile" style="--delay: 0ms"><span></span></div>
             <div class="tile" style="--delay: 100ms"><span></span></div>
             <div class="tile" style="--delay: 200ms"><span></span></div>
             <div class="tile" style="--delay: 300ms"><span></span></div>
             <div class="tile" style="--delay: 400ms"><span></span></div>
           </div>
-          <div class="tilesRow">
+          <div class="tilesRow" style="--rowDelay: 600ms">
             <div class="tile" style="--delay: 0ms"><span></span></div>
             <div class="tile" style="--delay: 100ms"><span></span></div>
             <div class="tile" style="--delay: 200ms"><span></span></div>
             <div class="tile" style="--delay: 300ms"><span></span></div>
             <div class="tile" style="--delay: 400ms"><span></span></div>
           </div>
-          <div class="tilesRow">
+          <div class="tilesRow" style="--rowDelay: 800ms">
             <div class="tile" style="--delay: 0ms"><span></span></div>
             <div class="tile" style="--delay: 100ms"><span></span></div>
             <div class="tile" style="--delay: 200ms"><span></span></div>
             <div class="tile" style="--delay: 300ms"><span></span></div>
             <div class="tile" style="--delay: 400ms"><span></span></div>
           </div>
-          <div class="tilesRow">
+          <div class="tilesRow" style="--rowDelay: 1000ms">
             <div class="tile" style="--delay: 0ms"><span></span></div>
             <div class="tile" style="--delay: 100ms"><span></span></div>
             <div class="tile" style="--delay: 200ms"><span></span></div>
             <div class="tile" style="--delay: 300ms"><span></span></div>
             <div class="tile" style="--delay: 400ms"><span></span></div>
           </div>
-          <div class="tilesRow">
+          <div class="tilesRow" style="--rowDelay: 1200ms">
             <div class="tile" style="--delay: 0ms"><span></span></div>
             <div class="tile" style="--delay: 100ms"><span></span></div>
             <div class="tile" style="--delay: 200ms"><span></span></div>
@@ -335,6 +360,7 @@
       const ABSENT_REGEX = /[⬜⬛]/g;
       const PRESENT_REGEX = /[🟨]/g;
       const CORRECT_REGEX = /[🟩]/g;
+      const board = document.querySelector('.board-display');
       const tilesRows = document.querySelectorAll('.tilesRow');
       const buttonPaste = document.querySelector('.board-actionButton_paste');
       const buttonCopy = document.querySelector('.board-actionButton_copy');
@@ -409,13 +435,14 @@
 
           clipboardData = text;
           setBoard(text);
-          setTiles()
+          setTiles();
+          playCopiedAnimation();
         } catch (error) {
           console.error(error);
         }
       }
 
-      async function handleOnClickCopy() {
+      async function handleOnClickCopy() {        
         try {
           let scoreOutput = `${clipboardData}`;
 
@@ -437,9 +464,18 @@
           );
 
           await navigator.clipboard.writeText(scoreOutput);
+          playCopiedAnimation();
         } catch (error) {
           console.error(error);
         }
+      }
+
+      function playCopiedAnimation() {
+        board.classList.remove('board-display_copied');
+
+        setTimeout(() => {
+          board.classList.add('board-display_copied');
+        }, 50);
       }
 
       function handleOnChangeInput(event, sufix) {
