@@ -353,6 +353,8 @@
       buttonCopy.addEventListener('click', handleOnClickCopy);
 
       function setBoard(data) {
+        clearBoard();
+
         const pointLines = data
           .trim()
           .split('\n')
@@ -370,6 +372,19 @@
             );
 
             tile.classList.add(`tile_${classSufix}`);
+          });
+        });
+      }
+
+      function clearBoard() {
+        tilesRows.forEach((row, rowIndex) => {
+          const tiles = row.querySelectorAll('.tile');
+
+          tiles.forEach((tile, tileIndex) => {
+            tile.classList.remove('tile_show');
+            Object.keys(replacementEmoji).forEach((sufix) => {
+              tile.classList.remove(`tile_${sufix}`);
+            });
           });
         });
       }
@@ -394,6 +409,7 @@
 
           clipboardData = text;
           setBoard(text);
+          setTiles()
         } catch (error) {
           console.error(error);
         }
@@ -431,23 +447,31 @@
 
         replacementEmoji[sufix] = value;
 
-        tilesRows.forEach((row) => {
-          const tiles = row.querySelectorAll(`.tile_${sufix}`);
+        setTiles();
+      }
 
-          tiles.forEach((tile) => {
-            const span = tile.querySelector('span');
+      function setTiles() {
+        Object.keys(replacementEmoji).forEach((sufix) => {
+          const value = replacementEmoji[sufix];
+          
+          if (!value) return;
+          
+          tilesRows.forEach((row) => {
+            const tiles = row.querySelectorAll(`.tile_${sufix}`);
 
-            console.log(span, value);
+            tiles.forEach((tile) => {
+              const span = tile.querySelector('span');
 
-            if (value) {
-              span.style.backgroundImage = svgBkg(value);
-            }
+              if (value) {
+                span.style.backgroundImage = svgBkg(value);
+              }
 
-            if (value) {
-              tile.classList.add('tile_show');
-            } else {
-              tile.classList.remove('tile_show');
-            }
+              if (value) {
+                tile.classList.add('tile_show');
+              } else {
+                tile.classList.remove('tile_show');
+              }
+            });
           });
         });
       }
