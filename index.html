@@ -10,6 +10,21 @@
       rel="stylesheet"
     />
     <title>WordleMojizer</title>
+    <meta
+      name="description"
+      content="Simple little web app to take in your wordle score and replace the emoji's
+      with ones of your choosing"
+    />
+    <script>
+      (function () {
+        const theme = localStorage.getItem("theme");
+
+        if (theme) {
+          document.documentElement.setAttribute("data-theme", theme);
+        }
+      })();
+    </script>
+    <!-- Don't take anything in thie code to seriously. I didn't. Its just something fun to tinker on for me to use with my kids -->
   </head>
 
   <style>
@@ -19,13 +34,14 @@
       --animation-duration: 500ms;
       --bg-color: #fff;
       --button-color: #d3d6da;
-      --correct-color: #6aaa64;
-      --font-heading: 'Arvo', serif;
+      --correct-color: #4c7d48;
+      --font-heading: "Arvo", serif;
       --icon-padding: 8px;
       --icon-size: 24px;
-      --present-color: #c9b458;
+      --present-color: #968640;
       --text-color: #050505;
       --tile-size: 56px;
+      --link-text: var(--correct-color);
     }
 
     @media (prefers-color-scheme: dark) {
@@ -37,18 +53,50 @@
         --correct-color: #538d4e;
         --present-color: #b59f3b;
         --text-color: #d9d9d9;
+        --link-text: var(--present-color);
       }
+    }
+
+    [data-theme="light"] {
+      --absent-color: #787c7e;
+      --accent-color: #d3d6da;
+      --animation-duration: 500ms;
+      --bg-color: #fff;
+      --button-color: #d3d6da;
+      --correct-color: #4c7d48;
+      --font-heading: "Arvo", serif;
+      --icon-padding: 8px;
+      --icon-size: 24px;
+      --present-color: #968640;
+      --text-color: #050505;
+      --tile-size: 56px;
+      --link-text: var(--correct-color);
+    }
+
+    [data-theme="dark"] {
+      --absent-color: #3a3a3c;
+      --accent-color: #3a3a3c;
+      --bg-color: #121213;
+      --button-color: #818384;
+      --correct-color: #538d4e;
+      --present-color: #b59f3b;
+      --text-color: #d9d9d9;
+      --link-text: var(--present-color);
     }
 
     body {
       background-color: var(--bg-color);
       color: var(--text-color);
+      font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir,
+        segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto,
+        arial, sans-serif;
     }
 
     h1 {
       font-family: var(--font-heading);
       font-size: 2rem;
-      margin-block: 32px;
+      margin-block-start: 32px;
+      margin-block-end: 0;
       text-align: center;
       text-transform: uppercase;
 
@@ -62,6 +110,19 @@
 
       > *:nth-child(3) {
         color: var(--correct-color);
+      }
+    }
+
+    h2 {
+      font-size: 0.875rem;
+      margin-block-start: 0;
+      margin-block-end: 32px;
+      text-align: center;
+      font-weight: normal;
+
+      a {
+        color: var(--link-text);
+        text-decoration: none;
       }
     }
 
@@ -169,7 +230,8 @@
       line-height: var(--tile-size);
       padding: 0;
       width: var(--tile-size);
-      transition: transform var(--animation-duration) cubic-bezier(0.65, 0, 0.35, 1);
+      transition: transform var(--animation-duration)
+        cubic-bezier(0.65, 0, 0.35, 1);
       transform: rotateX(-180deg);
       transition-delay: var(--delay);
 
@@ -189,17 +251,17 @@
     }
 
     .tile_absent,
-    input[name='absent'] {
+    input[name="absent"] {
       --replacer-input-color: var(--absent-color);
     }
 
     .tile_present,
-    input[name='present'] {
+    input[name="present"] {
       --replacer-input-color: var(--present-color);
     }
 
     .tile_correct,
-    input[name='correct'] {
+    input[name="correct"] {
       --replacer-input-color: var(--correct-color);
     }
 
@@ -235,11 +297,89 @@
         transform: scale(1);
       }
     }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .tile {
+        transition: none;
+      }
+
+      .tile_show {
+        transform: rotateX(0deg);
+      }
+
+      .board-display_copied .tile_absent,
+      .board-display_copied .tile_present,
+      .board-display_copied .tile_correct {
+        animation: none;
+      }
+    }
+
+    .lucide-sun,
+    .lucide-moon {
+      display: none;
+      opacity: 0.5;
+    }
+
+    .toggleTheme {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+    }
+
+    .lucide-sun {
+      display: block;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .lucide-sun {
+        display: none;
+      }
+
+      .lucide-moon {
+        display: block;
+      }
+    }
+
+    [data-theme="light"] .lucide-sun {
+      display: block;
+      color: var(--correct-color);
+      opacity: 1;
+    }
+
+    [data-theme="light"] .lucide-moon {
+      display: none;
+    }
+
+    [data-theme="dark"] .lucide-moon {
+      display: block;
+      color: var(--correct-color);
+      opacity: 1;
+    }
+
+    [data-theme="dark"] .lucide-sun {
+      display: none;
+    }
   </style>
 
   <body>
     <header>
       <h1><span>WORDL</span><span>E</span><span>MOJIZER</span></h1>
+      <h2>
+        Made with ❤️ by
+        <a href="https://withan.es" target="_blank">withan.es</a>
+      </h2>
     </header>
     <main>
       <section class="board">
@@ -254,13 +394,14 @@
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
-            class="lucide lucide-clipboard"
+            class="lucide-clipboard"
           >
             <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
             <path
               d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"
             />
           </svg>
+          <span class="sr-only">Paste Contents</span>
         </button>
         <div class="board-display">
           <div class="tilesRow" style="--rowDelay: 200ms">
@@ -317,78 +458,121 @@
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
-            class="lucide lucide-copy"
+            class="lucide-copy"
           >
             <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
             <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
           </svg>
+          <span class="sr-only">Copy Contents</span>
         </button>
       </section>
     </main>
     <footer>
       <form autocomplete="off">
-        <input type="text" name="absent" required />
-        <input type="text" name="present" required />
-        <input type="text" name="correct" required />
+        <label for="absent" class="sr-only">Absent</label>
+        <input id="absent" type="text" name="absent" required />
+        <label for="present" class="sr-only">Present</label>
+        <input id="present" type="text" name="present" required />
+        <label for="correct" class="sr-only">Correct</label>
+        <input id="correct" type="text" name="correct" required />
       </form>
+      <button class="toggleTheme">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-moon"
+        >
+          <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+        </svg>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-sun"
+        >
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2" />
+          <path d="M12 20v2" />
+          <path d="m4.93 4.93 1.41 1.41" />
+          <path d="m17.66 17.66 1.41 1.41" />
+          <path d="M2 12h2" />
+          <path d="M20 12h2" />
+          <path d="m6.34 17.66-1.41 1.41" />
+          <path d="m19.07 4.93-1.41 1.41" />
+        </svg>
+        <span class="sr-only">Toggle Theme</span>
+      </button>
     </footer>
 
     <script>
       const emojis = [
-        '😊',
-        '👍',
-        '❤️',
-        '😂',
-        '🎉',
-        '🌟',
-        '😎',
-        '🐶',
-        '🍕',
-        '🚀',
-        '🌈',
-        '🏆',
-        '🎵',
-        '✨',
-        '☕',
-        '🏅',
-        '📚',
-        '🔥',
-        '😍',
-        '💡',
+        "😊",
+        "👍",
+        "❤️",
+        "😂",
+        "🎉",
+        "🌟",
+        "😎",
+        "🐶",
+        "🍕",
+        "🚀",
+        "🌈",
+        "🏆",
+        "🎵",
+        "✨",
+        "☕",
+        "🏅",
+        "📚",
+        "🔥",
+        "😍",
+        "💡",
       ];
       const EMOJI_REGEX = /[⬜⬛🟨🟩]/g;
       const ABSENT_REGEX = /[⬜⬛]/g;
       const PRESENT_REGEX = /[🟨]/g;
       const CORRECT_REGEX = /[🟩]/g;
-      const board = document.querySelector('.board-display');
-      const tilesRows = document.querySelectorAll('.tilesRow');
-      const buttonPaste = document.querySelector('.board-actionButton_paste');
-      const buttonCopy = document.querySelector('.board-actionButton_copy');
+      const board = document.querySelector(".board-display");
+      const tilesRows = document.querySelectorAll(".tilesRow");
+      const buttonPaste = document.querySelector(".board-actionButton_paste");
+      const buttonCopy = document.querySelector(".board-actionButton_copy");
       const absentInput = document.querySelector('input[name="absent"]');
       const presentInput = document.querySelector('input[name="present"]');
       const correctInput = document.querySelector('input[name="correct"]');
       const replacementEmoji = {
-        absent: '',
-        present: '',
-        correct: '',
+        absent: "",
+        present: "",
+        correct: "",
       };
 
-      let clipboardData = '';
+      let clipboardData = "";
 
-      buttonPaste.addEventListener('click', handleOnPaste);
-      buttonCopy.addEventListener('click', handleOnClickCopy);
+      buttonPaste.addEventListener("click", handleOnPaste);
+      buttonCopy.addEventListener("click", handleOnClickCopy);
 
       function setBoard(data) {
         clearBoard();
 
         const pointLines = data
           .trim()
-          .split('\n')
+          .split("\n")
           .filter((line) => EMOJI_REGEX.test(line));
         const rows = [];
 
         tilesRows.forEach((row, rowIndex) => {
-          const tiles = row.querySelectorAll('.tile');
+          const tiles = row.querySelectorAll(".tile");
 
           tiles.forEach((tile, tileIndex) => {
             if (!pointLines[rowIndex]) return;
@@ -404,10 +588,10 @@
 
       function clearBoard() {
         tilesRows.forEach((row, rowIndex) => {
-          const tiles = row.querySelectorAll('.tile');
+          const tiles = row.querySelectorAll(".tile");
 
           tiles.forEach((tile, tileIndex) => {
-            tile.classList.remove('tile_show');
+            tile.classList.remove("tile_show");
             Object.keys(replacementEmoji).forEach((sufix) => {
               tile.classList.remove(`tile_${sufix}`);
             });
@@ -417,15 +601,15 @@
 
       function getClassSufix(emoji) {
         switch (emoji) {
-          case '⬜':
-          case '⬛':
-            return 'absent';
-          case '🟨':
-            return 'present';
-          case '🟩':
-            return 'correct';
+          case "⬜":
+          case "⬛":
+            return "absent";
+          case "🟨":
+            return "present";
+          case "🟩":
+            return "correct";
           default:
-            return '';
+            return "";
         }
       }
 
@@ -442,25 +626,25 @@
         }
       }
 
-      async function handleOnClickCopy() {        
+      async function handleOnClickCopy() {
         try {
           let scoreOutput = `${clipboardData}`;
 
           scoreOutput = scoreOutput.replaceAll(
-            '⬜',
-            replacementEmoji.absent || '⬜'
+            "⬜",
+            replacementEmoji.absent || "⬜"
           );
           scoreOutput = scoreOutput.replaceAll(
-            '⬛',
-            replacementEmoji.absent || '⬛'
+            "⬛",
+            replacementEmoji.absent || "⬛"
           );
           scoreOutput = scoreOutput.replaceAll(
-            '🟨',
-            replacementEmoji.present || '🟨'
+            "🟨",
+            replacementEmoji.present || "🟨"
           );
           scoreOutput = scoreOutput.replaceAll(
-            '🟩',
-            replacementEmoji.correct || '🟩'
+            "🟩",
+            replacementEmoji.correct || "🟩"
           );
 
           await navigator.clipboard.writeText(scoreOutput);
@@ -471,15 +655,15 @@
       }
 
       function playCopiedAnimation() {
-        board.classList.remove('board-display_copied');
+        board.classList.remove("board-display_copied");
 
         setTimeout(() => {
-          board.classList.add('board-display_copied');
+          board.classList.add("board-display_copied");
         }, 50);
       }
 
       function handleOnChangeInput(event, sufix) {
-        const {value} = event.target;
+        const { value } = event.target;
 
         replacementEmoji[sufix] = value;
 
@@ -489,63 +673,63 @@
       function setTiles() {
         Object.keys(replacementEmoji).forEach((sufix) => {
           const value = replacementEmoji[sufix];
-          
+
           if (!value) return;
-          
+
           tilesRows.forEach((row) => {
             const tiles = row.querySelectorAll(`.tile_${sufix}`);
 
             tiles.forEach((tile) => {
-              const span = tile.querySelector('span');
+              const span = tile.querySelector("span");
 
               if (value) {
                 span.style.backgroundImage = svgBkg(value);
               }
 
               if (value) {
-                tile.classList.add('tile_show');
+                tile.classList.add("tile_show");
               } else {
-                tile.classList.remove('tile_show');
+                tile.classList.remove("tile_show");
               }
             });
           });
         });
       }
 
-      absentInput.addEventListener('input', (event) => {
-        handleOnChangeInput(event, 'absent');
+      absentInput.addEventListener("input", (event) => {
+        handleOnChangeInput(event, "absent");
       });
 
-      presentInput.addEventListener('input', (event) => {
-        handleOnChangeInput(event, 'present');
+      presentInput.addEventListener("input", (event) => {
+        handleOnChangeInput(event, "present");
       });
 
-      correctInput.addEventListener('input', (event) => {
-        handleOnChangeInput(event, 'correct');
+      correctInput.addEventListener("input", (event) => {
+        handleOnChangeInput(event, "correct");
       });
 
       // Function to set the favicon
       function setFavicon(emoji) {
         // Create a canvas element
-        const canvas = document.createElement('canvas');
+        const canvas = document.createElement("canvas");
         canvas.width = 64;
         canvas.height = 64;
 
-        const ctx = canvas.getContext('2d');
-        ctx.font = '50px serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
+        const ctx = canvas.getContext("2d");
+        ctx.font = "50px serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
         ctx.fillText(emoji, canvas.width / 2, canvas.height / 2);
 
         // Convert the canvas to a data URL
-        const faviconURL = canvas.toDataURL('image/png');
+        const faviconURL = canvas.toDataURL("image/png");
 
         // Set the favicon link element
         let link = document.querySelector("link[rel~='icon']");
         if (!link) {
-          link = document.createElement('link');
-          link.rel = 'icon';
-          document.getElementsByTagName('head')[0].appendChild(link);
+          link = document.createElement("link");
+          link.rel = "icon";
+          document.getElementsByTagName("head")[0].appendChild(link);
         }
         link.href = faviconURL;
       }
@@ -567,6 +751,37 @@
       function svgBkg(value) {
         return `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">${value}</text></svg>')`;
       }
+
+      const toggleButton = document.querySelector(".toggleTheme");
+
+      toggleButton.addEventListener("click", function () {
+        const currentTheme =
+          document.documentElement.getAttribute("data-theme");
+        const prefers =
+          window.matchMedia &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light";
+
+        if (!currentTheme) {
+          const newTheme = prefers === "light" ? "dark" : "light";
+
+          document.documentElement.setAttribute("data-theme", newTheme);
+          localStorage.setItem("theme", newTheme);
+        } else {
+          if (currentTheme === prefers) {
+            const newTheme = currentTheme === "light" ? "dark" : "light";
+
+            document.documentElement.setAttribute("data-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
+          }
+
+          if (currentTheme !== prefers) {
+            document.documentElement.removeAttribute("data-theme", undefined);
+            localStorage.removeItem("theme", prefers);
+          }
+        }
+      });
     </script>
   </body>
 </html>
