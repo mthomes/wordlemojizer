@@ -1,3 +1,12 @@
+/*
+  I wanted way to make my Wordle scores fun by being able
+  to replace the emojis. I got sick of editing them by hand.
+  So I just decided to make a simple vanilla JavaScript
+  application to make it easier for me and my kids.
+
+  No build systems no dependencies just some raw HTML/CSS/JS
+*/
+
 const emojis = [
   "😊",
   "👍",
