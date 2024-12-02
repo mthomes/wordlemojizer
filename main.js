@@ -193,11 +193,11 @@ correctInput.addEventListener("input", (event) => {
 function setFavicon(emoji) {
   // Create a canvas element
   const canvas = document.createElement("canvas");
-  canvas.width = 64;
-  canvas.height = 64;
+  canvas.width = 32;
+  canvas.height = 32;
 
   const ctx = canvas.getContext("2d");
-  ctx.font = "50px serif";
+  ctx.font = "28px serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText(emoji, canvas.width / 2, canvas.height / 2);
@@ -220,14 +220,6 @@ function getRandomEmoji() {
   const randomIndex = Math.floor(Math.random() * emojis.length);
   return emojis[randomIndex];
 }
-
-// Set the initial random favicon
-setFavicon(getRandomEmoji());
-
-// Update the favicon every 30 seconds
-setInterval(() => {
-  setFavicon(getRandomEmoji());
-}, 10000);
 
 function svgBkg(value) {
   return `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">${value}</text></svg>')`;
@@ -262,3 +254,12 @@ toggleButton.addEventListener("click", function () {
     }
   }
 });
+
+setTimeout(() => {
+  setFavicon(getRandomEmoji());
+}, 1000);
+
+// Update the favicon every 30 seconds
+setInterval(() => {
+  setFavicon(getRandomEmoji());
+}, 10000);
