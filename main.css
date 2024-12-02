@@ -34,7 +34,6 @@
   --bg-color: #fff;
   --button-color: #d3d6da;
   --correct-color: #4c7d48;
-  --font-heading: "Arvo", serif;
   --icon-padding: 8px;
   --icon-size: 24px;
   --present-color: #968640;
@@ -63,8 +62,6 @@ body {
 }
 
 h1 {
-  font-family: var(--font-heading);
-  font-size: 2rem;
   margin-block-start: 32px;
   margin-block-end: 0;
   text-align: center;
